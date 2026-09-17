@@ -6,10 +6,22 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
+      <head>
+        <style>{`
+          @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+        `}</style>
+      </head>
       <body style={{
         margin: 0,
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        backgroundColor: '#121212',
+        backgroundColor: '#0d0d0d',
         color: '#ffffff'
       }}>
         {children}
@@ -17,5 +29,3 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
-
-
