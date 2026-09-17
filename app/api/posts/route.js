@@ -1,7 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
 
-// Usa la variable con tu prefijo customizado 'redlgtb'
 const connectionString = 
   process.env.REDLGTB_URL || 
   process.env.REDLGTB_POSTGRES_URL || 
@@ -9,26 +8,32 @@ const connectionString =
 
 const sql = neon(connectionString);
 
-// Obtener todas las publicaciones (GET)
+// Obtener el perfil del usuario (GET)
 export async function GET() {
   try {
-    const rows = await sql`SELECT * FROM posts ORDER BY created_at DESC;`;
-    return NextResponse.json({ posts: rows });
+    const rows = await sql`SELECT * FROM users ORDER BY id DESC LIMIT 1;`;
+    return NextResponse.json({ profile: rows[0] || null });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// Crear una nueva publicación (POST)
+// Guardar o actualizar perfil (POST)
 export async function POST(request) {
   try {
-    const { content } = await request.json();
-    if (!content || content.trim() === '') {
-      return NextResponse.json({ error: 'El contenido es requerido' }, { status: 400 });
+    const { username, pronouns, bio } = await request.json();
+
+    if (!username || !pronouns) {
+      return NextResponse.json({ error: 'Nombre de usuario y pronombres son requeridos' }, { status: 400 });
     }
 
-    await sql`INSERT INTO posts (content) VALUES (${content});`;
-    return NextResponse.json({ message: 'Publicación creada exitosamente' }, { status: 201 });
+    // Insertar o reemplazar perfil
+    await sql`
+      INSERT INTO users (username, pronouns, bio) 
+      VALUES (${username}, ${pronouns}, ${bio || ''});
+    `;
+
+    return NextResponse.json({ message: 'Perfil guardado exitosamente' }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
